@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHAMPIONS CUP 2026 - Official Site</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase App 및 Firestore 스크립트 (Compat 버전) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0C1929',      
+                            card: '#132A45',      
+                            cardLight: '#1C3E63', 
+                            primary: '#38BDF8',   
+                            accent: '#0284C7',    
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Noto+Sans+KR:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .glass { background: rgba(19, 42, 69, 0.85); backdrop-filter: blur(12px); }
+        .chat-scroll::-webkit-scrollbar { width: 6px; }
+        .chat-scroll::-webkit-scrollbar-thumb { background-color: #2E5A88; border-radius: 9999px; }
+    </style>
+</head>
+<body class="bg-[#0C1929] text-gray-100 min-h-screen flex flex-col justify-between selection:bg-sky-400 selection:text-gray-950">
+
+    <!-- Global Navigation Header -->
+    <header class="sticky top-0 z-50 glass border-b border-sky-900/50 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Brand Logo -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchPage('home')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-400 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/30">
+                        <i class="fa-solid font-black text-gray-950 text-xl fa-futbol"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="font-extrabold text-xl tracking-wider text-white">CHAMPIONS</span>
+                            <span class="font-extrabold text-xl text-sky-400">CUP</span>
+                        </div>
+                        <p class="text-[10px] text-sky-300/70 tracking-widest font-semibold uppercase">2026 Amateur League</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Menu -->
+                <nav class="hidden lg:flex items-center space-x-1 border border-sky-900/60 bg-[#132A45]/60 p-1.5 rounded-full">
+                    <button onclick="switchPage('home')" id="nav-home" class="nav-btn relative px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 text-white bg-sky-600 shadow-sm">Home</button>
+                    <button onclick="switchPage('about')" id="nav-about" class="nav-btn relative px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 text-gray-300 hover:text-white hover:bg-sky-900/50">About</button>
+                    <button onclick="switchPage('information')" id="nav-information" class="nav-btn relative px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 text-gray-300 hover:text-white hover:bg-sky-900/50">Information</button>
+                    <button onclick="switchPage('registration')" id="nav-registration" class="nav-btn relative px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 text-gray-300 hover:text-white hover:bg-sky-900/50">Registration</button>
+                    <button onclick="switchPage('gallery')" id="nav-gallery" class="nav-btn relative px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 text-gray-300 hover:text-white hover:bg-sky-900/50">Gallery</button>
+                    <button onclick="switchPage('notice')" id="nav-notice" class="nav-btn relative px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 text-gray-300 hover:text-white hover:bg-sky-900/50">Notice</button>
+                    <button onclick="switchPage('sponsors')" id="nav-sponsors" class="nav-btn relative px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 text-gray-300 hover:text-white hover:bg-sky-900/50">Sponsors</button>
+                    <button onclick="switchPage('contact')" id="nav-contact" class="nav-btn relative px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 text-gray-300 hover:text-white hover:bg-sky-900/50">Contact</button>
+                </nav>
+
+                <!-- Language Switcher & Controls -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-[#132A45] border border-sky-900 p-1 rounded-lg flex items-center text-xs font-bold">
+                        <button id="lang-kr" onclick="setLanguage('kr')" class="px-2.5 py-1 rounded bg-sky-400 text-gray-950 transition-all">KR</button>
+                        <button id="lang-en" onclick="setLanguage('en')" class="px-2.5 py-1 rounded text-gray-300 hover:text-white transition-all">EN</button>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-lg bg-[#132A45] text-gray-300 hover:text-white border border-sky-900">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden border-b border-sky-900 bg-[#0A1522] px-4 pt-2 pb-6 space-y-2">
+            <button onclick="switchPage('home'); toggleMobileMenu()" data-mobile="home" class="mobile-nav-btn block w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold text-sky-400 bg-sky-900/30">Home</button>
+            <button onclick="switchPage('about'); toggleMobileMenu()" data-mobile="about" class="mobile-nav-btn block w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold text-gray-200 hover:bg-sky-900/40">About</button>
+            <button onclick="switchPage('information'); toggleMobileMenu()" data-mobile="information" class="mobile-nav-btn block w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold text-gray-200 hover:bg-sky-900/40">Information</button>
+            <button onclick="switchPage('registration'); toggleMobileMenu()" data-mobile="registration" class="mobile-nav-btn block w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold text-gray-200 hover:bg-sky-900/40">Registration</button>
+            <button onclick="switchPage('gallery'); toggleMobileMenu()" data-mobile="gallery" class="mobile-nav-btn block w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold text-gray-200 hover:bg-sky-900/40">Gallery</button>
+            <button onclick="switchPage('notice'); toggleMobileMenu()" data-mobile="notice" class="mobile-nav-btn block w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold text-gray-200 hover:bg-sky-900/40">Notice</button>
+            <button onclick="switchPage('sponsors'); toggleMobileMenu()" data-mobile="sponsors" class="mobile-nav-btn block w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold text-gray-200 hover:bg-sky-900/40">Sponsors</button>
+            <button onclick="switchPage('contact'); toggleMobileMenu()" data-mobile="contact" class="mobile-nav-btn block w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold text-gray-200 hover:bg-sky-900/40">Contact</button>
+        </div>
+    </header>
+
+    <!-- MAIN PAGE CONTENT CONTAINERS -->
+    <main class="flex-grow">
+        
+        <!-- ================= HOME PAGE ================= -->
+        <section id="page-home" class="page-content">
+            <div class="relative overflow-hidden bg-gradient-to-b from-[#10233F] via-[#0C1929] to-[#08111D] py-24 sm:py-32 border-b border-sky-900/50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold bg-sky-400/10 text-sky-300 border border-sky-400/20 mb-6">
+                        <i class="fa-solid fa-trophy mr-2 text-sky-400"></i> <span data-i18n="heroBadge">2026 전국 아마추어 챔피언십</span>
+                    </span>
+                    <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight mb-6">
+                        <span data-i18n="heroTitle1">최고의 자리를 향한</span><br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-300 to-indigo-300" data-i18n="heroTitle2">열정과 도전의 그라운드</span>
+                    </h1>
+                    <p class="max-w-2xl mx-auto text-base sm:text-lg text-sky-100/70 mb-10" data-i18n="heroDesc">
+                        전국 최강의 아마추어 축구 클럽을 가리는 2026 챔피언스컵. 박진감 넘치는 경기와 푸짐한 상금이 기다립니다.
+                    </p>
+
+                    <!-- Countdown Timer -->
+                    <div class="grid grid-cols-4 gap-2 sm:gap-4 max-w-lg mx-auto mb-10 bg-[#132A45]/90 p-4 rounded-2xl border border-sky-900/70 shadow-2xl">
+                        <div class="text-center p-2 bg-[#0C1929] rounded-xl border border-sky-900/40">
+                            <span id="timer-days" class="block text-2xl sm:text-4xl font-extrabold text-sky-400">24</span>
+                            <span class="text-[10px] sm:text-xs text-sky-300/60 font-medium uppercase" data-i18n="days">DAYS</span>
+                        </div>
+                        <div class="text-center p-2 bg-[#0C1929] rounded-xl border border-sky-900/40">
+                            <span id="timer-hours" class="block text-2xl sm:text-4xl font-extrabold text-white">12</span>
+                            <span class="text-[10px] sm:text-xs text-sky-300/60 font-medium uppercase" data-i18n="hours">HOURS</span>
+                        </div>
+                        <div class="text-center p-2 bg-[#0C1929] rounded-xl border border-sky-900/40">
+                            <span id="timer-mins" class="block text-2xl sm:text-4xl font-extrabold text-white">45</span>
+                            <span class="text-[10px] sm:text-xs text-sky-300/60 font-medium uppercase" data-i18n="mins">MINS</span>
+                        </div>
+                        <div class="text-center p-2 bg-[#0C1929] rounded-xl border border-sky-900/40">
+                            <span id="timer-secs" class="block text-2xl sm:text-4xl font-extrabold text-sky-300">30</span>
+                            <span class="text-[10px] sm:text-xs text-sky-300/60 font-medium uppercase" data-i18n="secs">SECS</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <button onclick="switchPage('registration')" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-sky-400 hover:bg-sky-300 text-gray-950 font-bold text-sm shadow-lg shadow-sky-500/25 transition-all" data-i18n="btnRegisterNow">
+                            참가 신청하기 <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                        <button onclick="switchPage('information')" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#132A45] hover:bg-[#1C3E63] border border-sky-900 text-white font-semibold text-sm transition-all" data-i18n="btnViewRules">
+                            경기 규칙 및 요강
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ABOUT PAGE ================= -->
+        <section id="page-about" class="page-content hidden py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-extrabold text-white mb-4" data-i18n="aboutTitle">대회 소개</h2>
+                    <p class="text-sky-100/70 max-w-2xl mx-auto" data-i18n="aboutSub">챔피언스컵 2026의 취지와 연혁, 대회를 이끌어가는 조직위원회를 소개합니다.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                    <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl p-8">
+                        <i class="fa-solid fa-bullseye text-3xl text-sky-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-white mb-2" data-i18n="aboutPurposeTitle">대회 취지</h3>
+                        <p class="text-sky-100/70 text-sm leading-relaxed" data-i18n="aboutPurposeDesc">
+                            본 대회는 아마추어 축구의 저변 확대와 동호인 간의 건전한 스포츠 정신 교류를 위해 개최됩니다. 공정한 경기 운영과 최상의 환경을 제공하여 차세대 스포츠 문화 발전에 기여하고자 합니다.
+                        </p>
+                    </div>
+                    <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl p-8">
+                        <i class="fa-solid fa-users text-3xl text-blue-400 mb-4"></i>
+                        <h3 class="text-xl font-bold text-white mb-2" data-i18n="aboutEligibilityTitle">참가 대상</h3>
+                        <p class="text-sky-100/70 text-sm leading-relaxed" data-i18n="aboutEligibilityDesc">
+                            전국 순수 아마추어 축구 클럽 및 직장인/대학생 팀 (선수 출신 제약 규정 적용). 승패를 넘어 축구를 사랑하는 사람이라면 누구나 참가할 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Committee Staff -->
+                <h3 class="text-2xl font-bold text-white text-center mb-8" data-i18n="staffTitle">조직위원회</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="bg-[#132A45]/60 border border-sky-900/60 rounded-xl p-6 text-center">
+                        <div class="w-20 h-20 mx-auto rounded-full bg-[#0C1929] border border-sky-900 flex items-center justify-center text-3xl text-sky-400 mb-4">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-lg">김철수</h4>
+                        <p class="text-xs text-sky-400 font-semibold mb-2" data-i18n="staff1Role">대회 조직위원장</p>
+                        <p class="text-xs text-sky-300/60" data-i18n="staff1Desc">전 대한축구협회 이사 / 총괄 기획</p>
+                    </div>
+                    <div class="bg-[#132A45]/60 border border-sky-900/60 rounded-xl p-6 text-center">
+                        <div class="w-20 h-20 mx-auto rounded-full bg-[#0C1929] border border-sky-900 flex items-center justify-center text-3xl text-blue-400 mb-4">
+                            <i class="fa-solid fa-whistle"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-lg">이영희</h4>
+                        <p class="text-xs text-blue-400 font-semibold mb-2" data-i18n="staff2Role">심판 위원장</p>
+                        <p class="text-xs text-sky-300/60" data-i18n="staff2Desc">K리그 공인 1급 심판 출신 / 경기 운영</p>
+                    </div>
+                    <div class="bg-[#132A45]/60 border border-sky-900/60 rounded-xl p-6 text-center">
+                        <div class="w-20 h-20 mx-auto rounded-full bg-[#0C1929] border border-sky-900 flex items-center justify-center text-3xl text-sky-400 mb-4">
+                            <i class="fa-solid fa-user-nurse"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-lg">박민준</h4>
+                        <p class="text-xs text-sky-400 font-semibold mb-2" data-i18n="staff3Role">의무 & 안전 총괄</p>
+                        <p class="text-xs text-sky-300/60" data-i18n="staff3Desc">스포츠의학 전문의 / 현장 응급처치팀</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= INFORMATION PAGE ================= -->
+        <section id="page-information" class="page-content hidden py-16">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-extrabold text-white mb-4" data-i18n="infoTitle">경기 규칙 및 대회 규정</h2>
+                    <p class="text-sky-100/70" data-i18n="infoSub">공정하고 안전한 대회를 위한 기본 규칙 사항입니다.</p>
+                </div>
+
+                <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl p-6 sm:p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-lg font-bold text-sky-400 mb-4 flex items-center">
+                                <i class="fa-solid fa-list-check mr-2"></i> <span data-i18n="ruleSection1">경기 규정</span>
+                            </h3>
+                            <ul class="space-y-3 text-sm text-sky-100/80">
+                                <li class="flex items-start"><i class="fa-solid fa-check text-sky-400 mr-2 mt-1"></i> <span data-i18n="r1">11인제 정규 축구 규정 적용 (전/후반 각 25분)</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-sky-400 mr-2 mt-1"></i> <span data-i18n="r2">교체 인원: 최대 7명까지 자유 교체 가능</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-sky-400 mr-2 mt-1"></i> <span data-i18n="r3">예선 조별리그 (승점 - 승자승 - 골득실 순)</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-sky-400 mr-2 mt-1"></i> <span data-i18n="r4">본선 8강부터 토너먼트 (동점 시 승부차기)</span></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-blue-400 mb-4 flex items-center">
+                                <i class="fa-solid fa-shield-halved mr-2"></i> <span data-i18n="ruleSection2">선수 자격 제한</span>
+                            </h3>
+                            <ul class="space-y-3 text-sm text-sky-100/80">
+                                <li class="flex items-start"><i class="fa-solid fa-triangle-exclamation text-amber-400 mr-2 mt-1"></i> <span data-i18n="r5">현역 프로 선수 참가 불가</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-triangle-exclamation text-amber-400 mr-2 mt-1"></i> <span data-i18n="r6">선수출신(K3 이상)은 경기당 필드 2명 제한</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-triangle-exclamation text-amber-400 mr-2 mt-1"></i> <span data-i18n="r7">신분증 미지참 시 경기에 출전할 수 없음</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-triangle-exclamation text-amber-400 mr-2 mt-1"></i> <span data-i18n="r8">누적 경고 2회 시 다음 1경기 출전 정지</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= REGISTRATION PAGE ================= -->
+        <section id="page-registration" class="page-content hidden py-16">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-extrabold text-white mb-4" data-i18n="regTitle">참가 신청 안내</h2>
+                    <p class="text-sky-100/70" data-i18n="regSub">선착순 32개 팀 모집 중 (현재 24팀 접수 완료)</p>
+                </div>
+
+                <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl p-8 shadow-2xl">
+                    <form onsubmit="handleRegistrationSubmit(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-semibold text-sky-300 mb-2" data-i18n="formTeamName">팀명 (Team Name)</label>
+                                <input type="text" required placeholder="예: FC 챔피언스" class="w-full bg-[#0C1929] border border-sky-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-sky-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-sky-300 mb-2" data-i18n="formLeaderName">대표자 이름 (Leader Name)</label>
+                                <input type="text" required placeholder="홍길동" class="w-full bg-[#0C1929] border border-sky-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-sky-400">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-semibold text-sky-300 mb-2" data-i18n="formPhone">연락처 (Phone)</label>
+                                <input type="tel" required placeholder="010-1234-5678" class="w-full bg-[#0C1929] border border-sky-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-sky-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-sky-300 mb-2" data-i18n="formRegion">활동 지역 (Region)</label>
+                                <input type="text" required placeholder="서울 / 경기" class="w-full bg-[#0C1929] border border-sky-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-sky-400">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-sky-300 mb-2" data-i18n="formNote">남기실 말씀 (Note)</label>
+                            <textarea rows="3" placeholder="유니폼 색상, 출전 각오 등" class="w-full bg-[#0C1929] border border-sky-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-sky-400"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full py-4 bg-sky-400 hover:bg-sky-300 text-gray-950 font-bold rounded-xl text-sm shadow-lg shadow-sky-500/20 transition-all" data-i18n="btnSubmitForm">
+                            참가 신청 제출하기
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= GALLERY PAGE ================= -->
+        <section id="page-gallery" class="page-content hidden py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-extrabold text-white mb-4" data-i18n="galleryTitle">행사 갤러리</h2>
+                    <p class="text-sky-100/70" data-i18n="gallerySub">지난 대회의 뜨거운 순간들과 경기 현장</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl overflow-hidden group">
+                        <div class="h-48 bg-gradient-to-br from-sky-900/50 to-[#0C1929] flex items-center justify-center text-sky-400 group-hover:scale-105 transition-transform duration-300">
+                            <i class="fa-solid fa-trophy text-5xl"></i>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-white font-bold text-base" data-i18n="g1">2025 결승전 우승 시상식</h4>
+                            <p class="text-xs text-sky-300/60 mt-1">2025.10.15</p>
+                        </div>
+                    </div>
+                    <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl overflow-hidden group">
+                        <div class="h-48 bg-gradient-to-br from-blue-900/50 to-[#0C1929] flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform duration-300">
+                            <i class="fa-solid fa-futbol text-5xl"></i>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-white font-bold text-base" data-i18n="g2">개막전 슈팅 장면</h4>
+                            <p class="text-xs text-sky-300/60 mt-1">2025.09.01</p>
+                        </div>
+                    </div>
+                    <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl overflow-hidden group">
+                        <div class="h-48 bg-gradient-to-br from-indigo-900/50 to-[#0C1929] flex items-center justify-center text-indigo-400 group-hover:scale-105 transition-transform duration-300">
+                            <i class="fa-solid fa-users text-5xl"></i>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-white font-bold text-base" data-i18n="g3">참가팀 단체 기념 촬영</h4>
+                            <p class="text-xs text-sky-300/60 mt-1">2025.09.01</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= NOTICE PAGE ================= -->
+        <section id="page-notice" class="page-content hidden py-16">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-extrabold text-white mb-4" data-i18n="noticeTitle">공지사항</h2>
+                    <p class="text-sky-100/70" data-i18n="noticeSub">대회 일정 변경 및 주요 안내 사항</p>
+                </div>
+
+                <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl overflow-hidden">
+                    <div class="divide-y divide-sky-900/60">
+                        <div class="p-6 hover:bg-sky-900/20 transition-colors cursor-pointer">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <span class="bg-sky-400/20 text-sky-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase" data-i18n="badgeImportant">중요</span>
+                                <span class="text-xs text-sky-300/60">2026.03.01</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-1" data-i18n="n1Title">2026 챔피언스컵 대진표 추첨식 일정 안내</h3>
+                            <p class="text-xs text-sky-100/70" data-i18n="n1Desc">온라인 유튜브 생중계로 진행되는 대표자 회의 및 조추첨 일정 안내입니다.</p>
+                        </div>
+                        <div class="p-6 hover:bg-sky-900/20 transition-colors cursor-pointer">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <span class="bg-sky-950 text-sky-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase border border-sky-800" data-i18n="badgeNotice">공지</span>
+                                <span class="text-xs text-sky-300/60">2026.02.15</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-1" data-i18n="n2Title">대회 경기장 규격 및 주차장 이용 안내</h3>
+                            <p class="text-xs text-sky-100/70" data-i18n="n2Desc">서울 월드컵 보조경기장 주차 등록 및 선수단 이동 동선 안내입니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SPONSORS PAGE ================= -->
+        <section id="page-sponsors" class="page-content hidden py-16">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-extrabold text-white mb-4" data-i18n="sponsorsTitle">공식 후원사</h2>
+                    <p class="text-sky-100/70" data-i18n="sponsorsSub">2026 챔피언스컵과 함께하는 파트너</p>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                    <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl p-8 flex items-center justify-center text-sky-300/80 font-extrabold text-xl tracking-wider hover:border-sky-400 transition-colors">SPORTS WEAR</div>
+                    <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl p-8 flex items-center justify-center text-sky-300/80 font-extrabold text-xl tracking-wider hover:border-sky-400 transition-colors">ENERGY DRINK</div>
+                    <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl p-8 flex items-center justify-center text-sky-300/80 font-extrabold text-xl tracking-wider hover:border-sky-400 transition-colors">HEALTH CARE</div>
+                    <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl p-8 flex items-center justify-center text-sky-300/80 font-extrabold text-xl tracking-wider hover:border-sky-400 transition-colors">FOOTBALL GEAR</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= CONTACT PAGE ================= -->
+        <section id="page-contact" class="page-content hidden py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-extrabold text-white mb-4" data-i18n="contactTitle">문의 및 참가자 실시간 채팅</h2>
+                    <p class="text-sky-100/70" data-i18n="contactSub">조직위원회 1:1 문의 및 참가자들과의 실시간 커뮤니티 채팅</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 1:1 Contact Info & Form -->
+                    <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                                <i class="fa-solid fa-envelope-open-text text-sky-400 mr-3"></i>
+                                <span data-i18n="inquiryTitle">1:1 문의하기</span>
+                            </h3>
+
+                            <div class="space-y-4 text-sm text-sky-100/80 mb-8">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-lg bg-[#0C1929] border border-sky-900 flex items-center justify-center text-sky-400">
+                                        <i class="fa-solid fa-phone text-xs"></i>
+                                    </div>
+                                    <span>02-1234-5678 (평일 09:00 - 18:00)</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-lg bg-[#0C1929] border border-sky-900 flex items-center justify-center text-sky-400">
+                                        <i class="fa-solid fa-at text-xs"></i>
+                                    </div>
+                                    <span>support@championscup2026.com</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-lg bg-[#0C1929] border border-sky-900 flex items-center justify-center text-sky-400">
+                                        <i class="fa-solid fa-location-dot text-xs"></i>
+                                    </div>
+                                    <span data-i18n="stadiumLocation">서울시 마포구 월드컵로 240 보조경기장</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-sky-900/60 pt-6 flex items-center justify-between">
+                            <p class="text-xs text-sky-300/60" data-i18n="chatNotice">
+                                💡 실시간 문의사항은 옆의 커뮤니티 채팅방에 남겨주세요.
+                            </p>
+                            <!-- 관리자 모드 전환 버튼 -->
+                            <button onclick="toggleAdminMode()" id="admin-mode-btn" class="px-3 py-1.5 bg-sky-900/60 hover:bg-sky-800 border border-sky-700 text-sky-300 text-[11px] font-semibold rounded-lg transition-all">
+                                <i class="fa-solid fa-shield-halved mr-1"></i> 관리자 모드
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Community Chat Room -->
+                    <div class="bg-[#132A45] border border-sky-900/60 rounded-2xl p-6 flex flex-col h-[520px]">
+                        <div class="flex items-center justify-between pb-4 border-b border-sky-900/60">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-sky-400 animate-pulse"></div>
+                                <h3 class="font-bold text-white text-sm" data-i18n="chatTitle">실시간 참가자 채팅</h3>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span id="admin-status-badge" class="hidden px-2 py-0.5 bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[10px] font-bold rounded">ADMIN 활성화됨</span>
+                                <span class="text-xs text-sky-300/60"><i class="fa-solid fa-users mr-1"></i> 접속자 42명</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Chat Messages Container -->
+                        <div id="chat-messages" class="flex-grow overflow-y-auto chat-scroll py-4 space-y-3 pr-2 text-xs">
+                            <!-- 실시간으로 메시지가 들어오는 공간 -->
+                        </div>
+
+                        <!-- Chat Input Form -->
+                        <form onsubmit="handleChatSubmit(event)" class="mt-4 flex gap-2">
+                            <input type="text" id="chat-input" placeholder="메시지를 입력하세요 (비속어 자동 필터링)..." class="flex-grow bg-[#0C1929] border border-sky-900 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-sky-400">
+                            <button type="submit" class="px-5 py-3 bg-sky-400 hover:bg-sky-300 text-gray-950 font-bold rounded-xl text-xs transition-all">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Global Footer -->
+    <footer class="bg-[#0A1522] border-t border-sky-900/60 py-8 text-center text-xs text-sky-300/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
+            <p>&copy; 2026 CHAMPIONS CUP. All Rights Reserved.</p>
+            <p class="text-[11px] text-sky-300/40">Official Amateur Football Tournament Organization Committee</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic & Firebase Integration -->
+    <script>
+        // 회원님이 제공해주신 파이어베이스 설정 및 애널리틱스 연동 정보 적용
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3nRAZr9BZTBINxuHCSm2MzFQGcyar8Kc",
+            authDomain: "assa-a0f24.firebaseapp.com",
+            projectId: "assa-a0f24",
+            storageBucket: "assa-a0f24.firebasestorage.app",
+            messagingSenderId: "764543093440",
+            appId: "1:764543093440:web:ce8d0cce5d515aac86fb25",
+            measurementId: "G-XLL178V6JR"
+        };
+
+        // Firebase 초기화 및 애널리틱스 활성화
+        firebase.initializeApp(firebaseConfig);
+        const analytics = firebase.analytics();
+        const db = firebase.firestore();
+
+        let isAdmin = false; // 관리자 모드 상태 변수
+
+        // 관리자 모드 토글 함수 (비밀번호: 2026)
+        function toggleAdminMode() {
+            if (!isAdmin) {
+                const pwd = prompt("관리자 비밀번호를 입력하세요:");
+                if (pwd === "2026") { // 원하는 비밀번호로 변경 가능합니다
+                    isAdmin = true;
+                    alert("관리자 모드가 활성화되었습니다. 채팅 삭제 버튼이 표시됩니다.");
+                    document.getElementById('admin-status-badge').classList.remove('hidden');
+                    document.getElementById('admin-mode-btn').innerHTML = '<i class="fa-solid fa-shield-check mr-1"></i> 관리자 모드 해제';
+                    document.getElementById('admin-mode-btn').className = "px-3 py-1.5 bg-rose-900/60 hover:bg-rose-800 border border-rose-700 text-rose-300 text-[11px] font-semibold rounded-lg transition-all";
+                } else if (pwd !== null) {
+                    alert("비밀번호가 틀렸습니다.");
+                }
+            } else {
+                isAdmin = false;
+                alert("관리자 모드가 해제되었습니다.");
+                document.getElementById('admin-status-badge').classList.add('hidden');
+                document.getElementById('admin-mode-btn').innerHTML = '<i class="fa-solid fa-shield-halved mr-1"></i> 관리자 모드';
+                document.getElementById('admin-mode-btn').className = "px-3 py-1.5 bg-sky-900/60 hover:bg-sky-800 border border-sky-700 text-sky-300 text-[11px] font-semibold rounded-lg transition-all";
+            }
+            loadMessagesSnapshot();
+        }
+
+        let latestSnapshot = null;
+
+        // 실시간 메시지 불러오기 (Firestore 연동) 및 렌더링 함수
+        db.collection("chats").orderBy("timestamp", "asc").onSnapshot((snapshot) => {
+            latestSnapshot = snapshot;
+            loadMessagesSnapshot();
+        });
+
+        function loadMessagesSnapshot() {
+            if (!latestSnapshot) return;
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = "";
+            
+            latestSnapshot.forEach((doc) => {
+                const data = doc.data();
+                const docId = doc.id;
+                const timeString = data.time || "";
+
+                // 관리자 모드일 때만 삭제 버튼 표시
+                const deleteBtnHtml = isAdmin 
+                    ? `<button onclick="deleteChatMessage('${docId}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white rounded text-[10px] transition-colors"><i class="fa-solid fa-trash"></i> 삭제</button>`
+                    : '';
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'bg-[#0C1929] border border-sky-900/50 p-3 rounded-xl';
+                messageDiv.innerHTML = `
+                    <div class="flex justify-between items-center text-[10px] text-sky-300/60 mb-1">
+                        <span class="font-bold text-sky-400">${data.sender || '참가자'}</span>
+                        <div class="flex items-center space-x-2">
+                            <span>${timeString}</span>
+                            ${deleteBtnHtml}
+                        </div>
+                    </div>
+                    <p class="text-sky-100/90">${data.message}</p>
+                `;
+                chatMessages.appendChild(messageDiv);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 메시지 삭제 함수
+        function deleteChatMessage(docId) {
+            if (confirm("이 메시지를 삭제하시겠습니까?")) {
+                db.collection("chats").doc(docId).delete().catch((error) => {
+                    console.error("메시지 삭제 실패: ", error);
+                    alert("메시지 삭제에 실패했습니다.");
+                });
+            }
+        }
+
+        const translations = {
+            kr: {
+                heroBadge: "2026 전국 아마추어 챔피언십",
+                heroTitle1: "최고의 자리를 향한",
+                heroTitle2: "열정과 도전의 그라운드",
+                heroDesc: "전국 최강의 아마추어 축구 클럽을 가리는 2026 챔피언스컵. 박진감 넘치는 경기와 푸짐한 상금이 기다립니다.",
+                days: "DAYS", hours: "HOURS", mins: "MINS", secs: "SECS",
+                btnRegisterNow: "참가 신청하기",
+                btnViewRules: "경기 규칙 및 요강",
+                aboutTitle: "대회 소개",
+                aboutSub: "챔피언스컵 2026의 취지와 연혁, 대회를 이끌어가는 조직위원회를 소개합니다.",
+                aboutPurposeTitle: "대회 취지",
+                aboutPurposeDesc: "본 대회는 아마추어 축구의 저변 확대와 동호인 간의 건전한 스포츠 정신 교류를 위해 개최됩니다. 공정한 경기 운영과 최상의 환경을 제공하여 차세대 스포츠 문화 발전에 기여하고자 합니다.",
+                aboutEligibilityTitle: "참가 대상",
+                aboutEligibilityDesc: "전국 순수 아마추어 축구 클럽 및 직장인/대학생 팀 (선수 출신 제약 규정 적용). 승패를 넘어 축구를 사랑하는 사람이라면 누구나 참가할 수 있습니다.",
+                staffTitle: "조직위원회",
+                staff1Role: "대회 조직위원장", staff1Desc: "전 대한축구협회 이사 / 총괄 기획",
+                staff2Role: "심판 위원장", staff2Desc: "K리그 공인 1급 심판 출신 / 경기 운영",
+                staff3Role: "의무 & 안전 총괄", staff3Desc: "스포츠의학 전문의 / 현장 응급처치팀",
+                infoTitle: "경기 규칙 및 대회 규정",
+                infoSub: "공정하고 안전한 대회를 위한 기본 규칙 사항입니다.",
+                ruleSection1: "경기 규정",
+                r1: "11인제 정규 축구 규정 적용 (전/후반 각 25분)",
+                r2: "교체 인원: 최대 7명까지 자유 교체 가능",
+                r3: "예선 조별리그 (승점 - 승자승 - 골득실 순)",
+                r4: "본선 8강부터 토너먼트 (동점 시 승부차기)",
+                ruleSection2: "선수 자격 제한",
+                r5: "현역 프로 선수 참가 불가",
+                r6: "선수출신(K3 이상)은 경기당 필드 2명 제한",
+                r7: "신분증 미지참 시 경기에 출전할 수 없음",
+                r8: "누적 경고 2회 시 다음 1경기 출전 정지",
+                regTitle: "참가 신청 안내",
+                regSub: "선착순 32개 팀 모집 중 (현재 24팀 접수 완료)",
+                formTeamName: "팀명 (Team Name)",
+                formLeaderName: "대표자 이름 (Leader Name)",
+                formPhone: "연락처 (Phone)",
+                formRegion: "활동 지역 (Region)",
+                formNote: "남기실 말씀 (Note)",
+                btnSubmitForm: "참가 신청 제출하기",
+                galleryTitle: "행사 갤러리",
+                gallerySub: "지난 대회의 뜨거운 순간들과 경기 현장",
+                g1: "2025 결승전 우승 시상식",
+                g2: "개막전 슈팅 장면",
+                g3: "참가팀 단체 기념 촬영",
+                noticeTitle: "공지사항",
+                noticeSub: "대회 일정 변경 및 주요 안내 사항",
+                badgeImportant: "중요",
+                badgeNotice: "공지",
+                n1Title: "2026 챔피언스컵 대진표 추첨식 일정 안내",
+                n1Desc: "온라인 유튜브 생중계로 진행되는 대표자 회의 및 조추첨 일정 안내입니다.",
+                n2Title: "대회 경기장 규격 및 주차장 이용 안내",
+                n2Desc: "서울 월드컵 보조경기장 주차 등록 및 선수단 이동 동선 안내입니다.",
+                sponsorsTitle: "공식 후원사",
+                sponsorsSub: "2026 챔피언스컵과 함께하는 파트너",
+                contactTitle: "문의 및 참가자 실시간 채팅",
+                contactSub: "조직위원회 1:1 문의 및 참가자들과의 실시간 커뮤니티 채팅",
+                inquiryTitle: "1:1 문의하기",
+                stadiumLocation: "서울시 마포구 월드컵로 240 보조경기장",
+                chatNotice: "💡 실시간 문의사항은 옆의 커뮤니티 채팅방에 남겨주세요.",
+                chatTitle: "실시간 참가자 채팅"
+            },
+            en: {
+                heroBadge: "2026 National Amateur Championship",
+                heroTitle1: "The Ultimate Ground",
+                heroTitle2: "For Passion and Glory",
+                heroDesc: "The 2026 Champions Cup brings together the top amateur football clubs nationwide. Exciting matches and grand prizes await.",
+                days: "DAYS", hours: "HOURS", mins: "MINS", secs: "SECS",
+                btnRegisterNow: "Register Now",
+                btnViewRules: "View Rules & Regulations",
+                aboutTitle: "About Tournament",
+                aboutSub: "Discover the purpose, history, and organizing committee behind the 2026 Champions Cup.",
+                aboutPurposeTitle: "Tournament Purpose",
+                aboutPurposeDesc: "This tournament promotes amateur football expansion and healthy sportsmanship among enthusiasts. We provide fair play and top-tier facilities.",
+                aboutEligibilityTitle: "Eligibility",
+                aboutEligibilityDesc: "Open to amateur football clubs and corporate/university teams across the country. Anyone who loves football is welcome.",
+                staffTitle: "Organizing Committee",
+                staff1Role: "Committee Chairman", staff1Desc: "Former KFA Board Member / General Planning",
+                staff2Role: "Referee Chairman", staff2Desc: "Former K-League Grade 1 Referee / Match Operations",
+                staff3Role: "Medical & Safety Head", staff3Desc: "Sports Medicine Specialist / Emergency Support Team",
+                infoTitle: "Rules & Regulations",
+                infoSub: "Basic regulations for a fair and safe tournament.",
+                ruleSection1: "Match Rules",
+                r1: "11v11 standard football rules apply (25 mins per half)",
+                r2: "Substitutions: Up to 7 rolling substitutes",
+                r3: "Group stage ranking: Points -> Head-to-head -> Goal diff",
+                r4: "Knockout stage from Quarterfinals (Penalty shootout on tie)",
+                ruleSection2: "Player Restrictions",
+                r5: "Active professional players are ineligible",
+                r6: "Ex-pros (K3 or higher) limited to 2 on-field per team",
+                r7: "Valid ID required for match participation",
+                r8: "2 yellow cards result in a 1-match suspension",
+                regTitle: "Registration Guide",
+                regSub: "Recruiting first 32 teams (24 teams currently registered)",
+                formTeamName: "Team Name",
+                formLeaderName: "Leader Name",
+                formPhone: "Phone Number",
+                formRegion: "Region",
+                formNote: "Additional Note",
+                btnSubmitForm: "Submit Application",
+                galleryTitle: "Event Gallery",
+                gallerySub: "Memorable moments and match scenes from past events",
+                g1: "2025 Finals Trophy Ceremony",
+                g2: "Opening Match Action Shot",
+                g3: "Team Group Photo",
+                noticeTitle: "Notices",
+                noticeSub: "Tournament schedule changes and important updates",
+                badgeImportant: "IMPORTANT",
+                badgeNotice: "NOTICE",
+                n1Title: "2026 Champions Cup Draw Schedule Announcement",
+                n1Desc: "Details on the team meeting and group draw broadcast live online via YouTube.",
+                n2Title: "Stadium Dimensions & Parking Guidelines",
+                n2Desc: "Information on Seoul World Cup auxiliary stadium parking and team movement.",
+                sponsorsTitle: "Official Sponsors",
+                sponsorsSub: "Proud partners of the 2026 Champions Cup",
+                contactTitle: "Inquiries & Live Chat",
+                contactSub: "1:1 committee support and real-time community chat for participants",
+                inquiryTitle: "1:1 Inquiry",
+                stadiumLocation: "240 World Cup-ro, Mapo-gu, Seoul (Auxiliary Stadium)",
+                chatNotice: "💡 Leave your questions in the community chat for quick answers.",
+                chatTitle: "Live Participant Chat"
+            }
+        };
+
+        let currentLang = 'kr';
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('page-' + pageId).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn relative px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 text-gray-300 hover:text-white hover:bg-sky-900/50";
+            });
+
+            const activeBtn = document.getElementById('nav-' + pageId);
+            if (activeBtn) {
+                activeBtn.className = "nav-btn relative px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 text-white bg-sky-600 shadow-sm";
+            }
+
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+                btn.className = "mobile-nav-btn block w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold text-gray-200 hover:bg-sky-900/40";
+            });
+            const activeMobileBtn = document.querySelector(`[data-mobile="${pageId}"]`);
+            if (activeMobileBtn) {
+                activeMobileBtn.className = "mobile-nav-btn block w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold text-sky-400 bg-sky-900/30";
+            }
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('lang-kr').className = lang === 'kr' ? 'px-2.5 py-1 rounded bg-sky-400 text-gray-950 transition-all' : 'px-2.5 py-1 rounded text-gray-300 hover:text-white transition-all';
+            document.getElementById('lang-en').className = lang === 'en' ? 'px-2.5 py-1 rounded bg-sky-400 text-gray-950 transition-all' : 'px-2.5 py-1 rounded text-gray-300 hover:text-white transition-all';
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function handleRegistrationSubmit(event) {
+            event.preventDefault();
+            alert(currentLang === 'kr' ? '참가 신청이 성공적으로 접수되었습니다!' : 'Registration submitted successfully!');
+            event.target.reset();
+        }
+
+        function filterProfanity(text) {
+            const badWords = ['바보', '멍청이', '시발', '병신', 'XX', 'damn', 'idiot', 'stupid'];
+            let filtered = text;
+            badWords.forEach(word => {
+                const regex = new RegExp(word, 'gi');
+                filtered = filtered.replace(regex, '**');
+            });
+            return filtered;
+        }
+
+        // 메시지 전송 함수 (Firestore 저장)
+        function handleChatSubmit(event) {
+            event.preventDefault();
+            const input = document.getElementById('chat-input');
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            const safeMessage = filterProfanity(messageText);
+            
+            const now = new Date();
+            const timeString = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+            db.collection("chats").add({
+                sender: "참가자",
+                message: safeMessage,
+                time: timeString,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                input.value = '';
+            })
+            .catch((error) => {
+                console.error("메시지 전송 실패: ", error);
+                alert("메시지 전송에 실패했습니다.");
+            });
+        }
+    </script>
+</body>
+</html>
